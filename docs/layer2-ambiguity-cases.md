@@ -31,9 +31,11 @@
 
 加载 config（含 Baseline Intent）、Layer 1 的失败 case 列表和改动摘要。**不读 description。**
 
-### Step 2: 分析每个 skill 的模糊输入区域 [可并行 — 每个 skill 一个 subagent]
+### Step 2: 分析模糊输入区域 [AI 辅助 + 用户确认]
 
-从 Baseline Intent 的"已知模糊区域"出发，用两个维度构建模糊矩阵：
+AI 从 Baseline Intent 的模糊区域 + Layer 1 失败模式推断歧义场景草稿。用户确认这些场景是否反映真实用户行为。
+
+**AI 自动分析：** 读取 Baseline Intent "模糊区域" 列 + Layer 1 快照中的失败 case，用两个维度构建模糊矩阵：
 
 **维度 A: 素材类型**
 - 无素材 / 单图 / 多图 / 图+视频 / 纯视频
@@ -41,10 +43,12 @@
 **维度 B: 意图类型**
 - 创作 / 编辑 / 探索 / 反馈 / 澄清
 
-交叉分析：
-1. 哪些 `素材类型 × 意图类型` 组合在 Baseline Intent 的已知模糊区域？
-2. Layer 1 失败 cases 是否属于模糊 case？归类原因
-3. 哪些组合可能同时匹配本 skill 和其他 skill？
+**AI 生成草稿：**
+1. **模糊矩阵热力图草稿** — 基于素材类型 x 意图类型交叉分析
+2. **每个识别出的模糊区域 3-5 个候选 ambiguity case 草稿**
+3. Layer 1 失败 cases 归类分析（是否属于模糊 case）
+
+**用户验证：** 确认这些 case 是否代表真实用户会发送的模糊输入，可调整预期路由决策。
 
 输出格式：
 ```json

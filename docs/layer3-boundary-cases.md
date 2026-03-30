@@ -32,13 +32,15 @@
 
 加载 config（含 Baseline Intent）、Layer 1+2 的所有失败 case。**不读 description。**
 
-### Step 2: 识别竞争 skill 对 [可并行 — 每对竞争 skill 一个 subagent]
+### Step 2: 识别竞争 skill 对 [AI 辅助 + 用户确认]
 
-从 Baseline Intent 的"竞争 skill"和 Layer 1+2 的失败 case 中识别竞争关系：
+AI 从 config 的竞争skill 列自动提取竞争对，生成判断信号分析和 fallback 建议。用户审阅后确认或调整。
 
-1. **Baseline Intent 声明的竞争对** — 用户在 Phase 0 已识别的竞争关系
-2. **失败 case 中发现的新竞争对** — Layer 1+2 中出现但 Baseline Intent 未预见的竞争
-3. **分析判决信号** — 每对竞争 skill，区分它们的关键信号是什么？
+**AI 自动提取竞争对：** 从 config.md 的"竞争skill"列 + Layer 1+2 失败 case 中识别竞争关系，呈现列表供用户确认。
+
+1. **Baseline Intent 声明的竞争对** — AI 从 config 自动提取，用户确认
+2. **失败 case 中发现的新竞争对** — AI 从 Layer 1+2 失败 case 中发现 Baseline Intent 未预见的竞争
+3. **AI 生成判决信号表草稿** — 每对竞争 skill，AI 分析区分它们的关键信号，用户验证
 4. **标注不可裁决** — 哪些 case 两个 skill 都有合理性，无法通过 description 区分？
 
 输出格式：
@@ -57,23 +59,25 @@
 |---------|------|------|---------------|
 ```
 
-### Step 3: 验证并完善兜底策略 [串行 — 等用户]
+### Step 3: 验证并完善兜底策略 [AI 建议 + 用户审批]
 
-Baseline Intent 已包含每个竞争对的初步兜底方向。在此基础上验证和完善：
+**AI 生成 fallback 建议：** 基于竞争对分析，AI 为每对竞争 skill 生成兜底方向建议，附带 UX 影响推理：
 
-- **哪个错误结果对用户体验损失更小？**
+- **AI 分析哪个错误结果对用户体验损失更小**
   - 例：误路由到 selection-clarification（多问一次）vs 误路由到 image-editing（直接执行错误操作）→ 前者损失更小
-- **兜底方向** — 不可裁决时默认路由到哪个 skill？
+- **AI 建议兜底方向** — 不可裁决时默认路由到哪个 skill，附推理
 - **目标** — 95% 的"错误"结果是用户体验损失可控的
 
-用户确认后，记录每对竞争 skill 的兜底规则。
+**用户审批或覆盖：** 用户审阅 AI 的 fallback 建议，确认或调整兜底方向。
 
-### Step 4: 准备 boundary test cases [串行]
+### Step 4: 准备 boundary test cases [AI 辅助 + 用户确认]
 
-为每对竞争 skill 构建 boundary cases（3-5 个/对）：
+**AI 生成 boundary case 草稿：** 为每对竞争 skill 生成 3-5 个候选 boundary case，来源为判决信号分析：
 - 覆盖已识别的判决信号
 - 包含不可裁决 case（预期为兜底方向）
 - 包含 Layer 1+2 中标注为"跨 skill 竞争"的失败 case
+
+**用户验证：** 确认每个 case 是否反映真实边界场景，可增删编辑。
 
 ### Step 5: 运行测试 [串行]
 

@@ -20,7 +20,7 @@
 
 | 搜索目标 | 搜索方式 | 记录内容 |
 |----------|---------|---------|
-| Skill 目录 | glob `**/skills/*/SKILL.md` | 每个 skill 的路径、name、type、description 首行 |
+| Skill 目录 | glob `**/skills/*/SKILL.md` | 每个 skill 的路径、name、type（仅读 frontmatter，不读 description） |
 | Planner prompt | glob `**/planner_prompt*.txt` | 文件路径 |
 | Replan prompt | glob `**/replan_prompt*.txt` | 文件路径 |
 | Tool schema | grep `skill_name` 或 `CreatePlanParams` | 定义 skill_name enum 的文件路径 |
@@ -35,9 +35,9 @@
 ## 项目结构发现
 
 ### Skills ({N} 个)
-| Skill | 路径 | Type | Description 首行 |
-|-------|------|------|-----------------|
-| ...   | ...  | ...  | ...             |
+| Skill | 路径 | Type |
+|-------|------|------|
+| ...   | ...  | ...  |
 
 ### 关键文件
 - Planner prompt: {path}
@@ -59,18 +59,25 @@
 - 关键文件路径是否正确
 - 是否有遗漏的配置或约束
 
-### Step 3.5: 收集 Baseline Intent [串行 — 等用户]
+### Step 3.5: 收集 Baseline Intent [AI 辅助 + 用户确认]
 
-对每个 skill，用 `references/templates.md` 的 Baseline Intent Spec 模板，请用户从产品/用户视角回答：
+> **TDD 原则：AI 仅读取 frontmatter 的 name 和 type 字段来发现 skill 列表，**不读取 description**。Baseline Intent 必须完全来自用户意图。**
 
-- 用户想做什么时应该走这个 skill？（一句话）
-- 3-5 个最典型的输入场景
+**AI 发现 skill 列表：** AI 扫描 SKILL.md 文件，仅读取 frontmatter 的 `name` 和 `type` 字段，不读取 `description`。
+
+**逐个 skill 收集意图：** 对每个 skill，AI 向用户提问一个核心问题：
+
+> "用户什么时候应该走 **{skill-name}**？用一句话描述核心意图。"
+
+**AI 生成草稿：** 基于用户的回答，AI 自动生成每个 skill 的 Baseline Intent 草稿：
+- 3-5 个必须通过的场景
 - 2-3 个绝对不该走这里的场景
-- 已知的模糊区域和竞争 skill
+- 已知的模糊区域
+- 竞争 skill
 
-**关键：不读 description，只从用户意图出发。**
+**用户审阅：** 用户逐个 skill 审阅草稿，确认或编辑。
 
-将结果写入 `.routing-quality/config.md` 的新增 `Baseline Intent` section。
+**AI 汇编：** AI 将用户确认后的结果汇编写入 `.routing-quality/config.md` 的 `Baseline Intent` section。
 
 ### Step 4: 写入 config
 

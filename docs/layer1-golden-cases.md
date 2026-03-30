@@ -29,13 +29,16 @@
 
 从 config 获取 skill 列表和 Baseline Intent。**不读 description。**
 
-### Step 2: 从 Baseline Intent 定义 golden cases [可并行 — 每个 skill 一个 subagent]
+### Step 2: 从 Baseline Intent 生成 golden cases [AI 辅助 + 用户确认]
 
-每个 skill 3-5 个 golden case。**来源是 config 中的 Baseline Intent，不是 description：**
+AI 从 Baseline Intent 的必须通过场景自动生成 golden case 草稿，用户逐个确认是否符合真实用户行为。
 
-1. **从"必须通过的场景"直接转为 test case**
-2. **从"绝对不该走这里的场景"转为反向 test case**（预期路由为其他 skill）
-3. **用户补充** — 展示初始列表后，用户可增删
+每个 skill 3-5 个 golden case。**来源是 config 中的 Baseline Intent，不是 description（Iron Law）：**
+
+1. **AI 自动生成草稿** — 读取 Baseline Intent 的"必须通过的场景"，为每个 skill 生成 3-5 个 golden case 草稿（含 case_id, media, text, expected_skill, reason）
+2. **AI 从"绝对不该走这里的场景"生成反向 case 草稿**（预期路由为其他 skill）
+3. **用户验证** — 逐个确认每个 case 是否代表真实用户行为，可增删编辑
+4. **AI 不读 SKILL.md description 来生成 cases（Iron Law）**
 
 Golden case 标准：
 - 来自用户/产品视角，不依赖 description 的措辞

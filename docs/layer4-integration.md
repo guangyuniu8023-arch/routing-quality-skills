@@ -81,7 +81,9 @@ v4-integration/
   summary.md           # 最终摘要：各层准确率、回归情况、总结
 ```
 
-### Step 5: 生成最终报告 [串行]
+### Step 5: 生成最终报告 [AI 自动生成 + 用户审阅]
+
+AI 从测试结果 + 各层快照自动生成集成报告草稿，包括通过率、skill 性能矩阵、回归分析、已知限制。用户审阅报告准确性。
 
 ```markdown
 # Integration Report
