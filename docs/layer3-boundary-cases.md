@@ -77,11 +77,35 @@ AI 从 config 的竞争skill 列自动提取竞争对，生成判断信号分析
 - 包含不可裁决 case（预期为兜底方向）
 - 包含 Layer 1+2 中标注为"跨 skill 竞争"的失败 case
 
+Boundary case 格式（扩展自 golden case）：
+
+```json
+{
+  "case_id": "L3-{skillA}-{skillB}-{N}",
+  "skill": "{competing_skill_A}",
+  "media": "描述素材情况",
+  "text": "用户输入文本",
+  "expected": "{应路由到的 skill}",
+  "reason": "判断依据",
+  "competing_skill": "{另一个竞争 skill}",
+  "boundary_signal": "决定路由方向的关键信号",
+  "fallback_if_undecidable": "{fallback skill}"
+}
+```
+
 **用户验证：** 确认每个 case 是否反映真实边界场景，可增删编辑。
 
 ### Step 5: 运行测试 [串行]
 
 合并 L1 golden + L2 ambiguity + L3 boundary 一起跑，确保无回归。
+
+使用 `.routing-quality/config.md` 中记录的 `test_command` 运行测试。
+
+判定标准：
+- 每个 case 运行 3 次取多数结果
+- `PASS`：多数结果的 `actual_skill == expected_skill`
+- `FAIL`：多数结果的 `actual_skill != expected_skill`
+- 整体通过率 >= 95% 方可进入下一层
 
 ### Step 6: 分析结果 + 迭代 [串行]
 

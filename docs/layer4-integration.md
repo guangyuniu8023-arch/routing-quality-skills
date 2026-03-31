@@ -20,6 +20,12 @@
 
 将 L1 golden + L2 ambiguity + L3 boundary 的 test cases 合并为一个完整测试集。
 
+**合并方式**：
+1. 读取各层快照中的测试用例文件（`v1-golden/test-cases.json`、`v2-ambiguity/test-cases.json`、`v3-boundary/test-cases.json`）
+2. 按 `case_id` 前缀分组（`G-` = golden, `L2-` = ambiguity, `L3-` = boundary）
+3. 合并为一个文件 `tests/routing_test_integration.py`
+4. 去重规则：如果两个 case 的 `user_text` 相同，保留更高层级的版本（L3 > L2 > L1）
+
 检查：
 - **去重** — 是否有跨层重复的 case？合并时保留更高层的版本
 - **总数上限** — 验证总 case 数 <= 400
@@ -27,7 +33,15 @@
 
 ### Step 2: 运行全量测试 [串行]
 
-用合并后的完整测试集运行测试（建议 3 runs 取多数）。
+用合并后的完整测试集运行测试。
+
+使用 `.routing-quality/config.md` 中记录的 `test_command` 运行测试。
+
+判定标准：
+- 每个 case 运行 3 次取多数结果
+- `PASS`：多数结果的 `actual_skill == expected_skill`
+- `FAIL`：多数结果的 `actual_skill != expected_skill`
+- 整体通过率 >= 95%，Golden cases >= 98%
 
 ### Step 3: 分析结果 [串行]
 
